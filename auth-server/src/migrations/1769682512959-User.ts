@@ -24,6 +24,10 @@ export class User1769682512959 implements MigrationInterface {
             name: 'password',
             type: 'varchar',
           },
+          {
+            name: 'loginAttempts',
+            type: 'int',
+          },
         ],
       }),
       true,

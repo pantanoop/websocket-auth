@@ -1,18 +1,26 @@
-import { store } from "../store";
-import apiClient from "./services/authApi";
 import { logout } from "../auth/authenticateSlice";
+import axios from "axios";
 
-export const setupInterceptors = () => {
-  apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        store.dispatch(logout());
+export const privateApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+});
 
-        window.location.href = "/pages/auth/login";
-      }
+let store: any;
 
-      return Promise.reject(error);
-    },
-  );
+export const injectStore = (_store: any) => {
+  store = _store;
 };
+
+privateApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn("Session expired,Logging out...");
+      if (store) {
+        store.dispatch(logout());
+      }
+    }
+    return Promise.reject(error);
+  },
+);

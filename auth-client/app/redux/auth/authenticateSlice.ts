@@ -35,24 +35,8 @@ export const loginUser = createAsyncThunk(
     try {
       return await findUser(data);
     } catch (error: any) {
+      console.log(error, "thunk");
       return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  },
-);
-
-export const checkSession = createAsyncThunk(
-  "auth/checkSession",
-  async (_, { rejectWithValue }) => {
-    try {
-      const valid = await validateSession();
-
-      if (!valid) {
-        throw new Error("Session expired");
-      }
-
-      return true;
-    } catch (error: any) {
-      return rejectWithValue("Session expired");
     }
   },
 );
@@ -92,13 +76,10 @@ const authenticateSlice = createSlice({
         state.currentUser = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        console.log(action.payload, "err in slice");
         state.loading = false;
         state.error = action.payload as string;
         state.currentUser = null;
-      })
-      .addCase(checkSession.rejected, (state) => {
-        state.currentUser = null;
-        state.error = "Session expired";
       });
   },
 });

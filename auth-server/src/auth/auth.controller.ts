@@ -38,7 +38,7 @@ export class AuthController {
     response.cookie('email', user.email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60000,
+      maxAge: 60000000,
       sameSite: 'strict',
     });
 
@@ -56,7 +56,7 @@ export class AuthController {
     response.cookie('email', req.user.email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60000,
+      maxAge: 60000000,
       sameSite: 'strict',
     });
 

@@ -37,9 +37,12 @@ type LoginFormData = z.infer<typeof LoginSchema>;
 function Login() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  // const { error } = useAppSelector((state) => state.authenticator);
 
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success",
@@ -48,6 +51,9 @@ function Login() {
   const { currentUser, error } = useAppSelector((state) => state.authenticator);
 
   useEffect(() => {
+    if (error === "409") {
+      setShowOtp(true);
+    }
     if (currentUser && !error) {
       setSnackbarMessage("Logged in successfully!");
       setSnackbarSeverity("success");
@@ -77,8 +83,8 @@ function Login() {
   const handleLogin = async (data: LoginFormData) => {
     try {
       await dispatch(loginUser(data));
-    } catch (err: any) {
-      const message = err?.message || "Login failed";
+    } catch (error: any) {
+      const message = error?.message || "Login failed";
 
       setError("email", { type: "manual", message });
 
@@ -87,6 +93,10 @@ function Login() {
       setOpenSnackbar(true);
     }
   };
+
+  function handleOtp() {
+    return "hello";
+  }
 
   return (
     <div className="so-login-page">
@@ -155,6 +165,34 @@ function Login() {
             </Button>
           </Box>
         </Card>
+        {showOtp && (
+          <Card className="so-login-card">
+            <Box
+              component="form"
+              onSubmit={handleSubmit(handleOtp)}
+              className="so-login-form"
+            >
+              <TextField
+                label="otp"
+                variant="outlined"
+                placeholder="Enter OTP"
+                fullWidth
+                value={otpValue}
+                onChange={(e: any) => setOtpValue(e.target.value)}
+              />
+
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                className="so-login-submit"
+                onSubmit={handleSubmit(handleOtp)}
+              >
+                Verify OTP
+              </Button>
+            </Box>
+          </Card>
+        )}
 
         <div className="so-login-footer">
           <Typography>

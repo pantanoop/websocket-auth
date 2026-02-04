@@ -4,10 +4,12 @@ import { AuthController } from './auth.controller';
 import { User } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LocalStrategy } from './local.strategy';
+import { Session } from '../session/entities/session.entity';
+import { AuthGateway } from './auth-gateway';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User, Session])],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, AuthGateway],
 })
 export class AuthModule {}

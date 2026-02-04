@@ -44,7 +44,7 @@ export class AuthController {
 
     return {
       message: 'Signup successful',
-      user: { email: user.email },
+      user: { email: user.email, id: user.id },
     };
   }
 
@@ -62,7 +62,7 @@ export class AuthController {
 
     return {
       message: 'Login successful',
-      user: { email: req.user.email },
+      user: { email: req.user.email, id: req.user.id },
     };
   }
 

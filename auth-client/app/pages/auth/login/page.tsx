@@ -15,6 +15,8 @@ import {
   IconButton,
 } from "@mui/material";
 
+import { socket } from "../../../libraries/socket.library";
+
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -23,7 +25,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useAppDispatch, useAppSelector } from "../../../hooks/hooks";
-import { loginUser } from "../../../redux/auth/authenticateSlice";
+import {
+  addCurrentUser,
+  loginUser,
+} from "../../../redux/auth/authenticateSlice";
 
 import "./login.css";
 
@@ -37,7 +42,6 @@ type LoginFormData = z.infer<typeof LoginSchema>;
 function Login() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  // const { error } = useAppSelector((state) => state.authenticator);
 
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -52,9 +56,14 @@ function Login() {
 
   useEffect(() => {
     if (error === "409") {
+      socket.connect();
+      console.log("in if");
       setShowOtp(true);
+      socket.emit("onGenerateOtp");
     }
     if (currentUser && !error) {
+      socket.connect();
+      socket.emit("onConnection", Number(currentUser?.id));
       setSnackbarMessage("Logged in successfully!");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
@@ -65,7 +74,7 @@ function Login() {
 
       return () => clearTimeout(timer);
     }
-  }, [currentUser, router]);
+  }, [currentUser, error, router]);
   console.log(currentUser);
   const {
     control,
@@ -95,7 +104,19 @@ function Login() {
   };
 
   function handleOtp() {
-    return "hello";
+    console.log(otpValue, "login");
+    const data = {
+      id: currentUser?.id,
+      otp: otpValue,
+    };
+    socket.connect();
+    socket.emit("onVerifyOtp", data);
+    socket.on("login", (data) => {
+      console.log(data, "login page");
+      socket.connect();
+      dispatch(addCurrentUser(data));
+      router.replace("/dashboard");
+    });
   }
 
   return (
@@ -173,7 +194,7 @@ function Login() {
               className="so-login-form"
             >
               <TextField
-                label="otp"
+                label="OTP"
                 variant="outlined"
                 placeholder="Enter OTP"
                 fullWidth

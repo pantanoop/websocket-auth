@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, current } from "@reduxjs/toolkit";
 import { createUser, findUser, validateSession } from "./services/authService";
 
 export type User = {
@@ -50,6 +50,9 @@ const authenticateSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    addCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
@@ -72,8 +75,9 @@ const authenticateSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log(action.payload.user, "currentUser slice");
         state.loading = false;
-        state.currentUser = action.payload;
+        state.currentUser = action.payload.user;
       })
       .addCase(loginUser.rejected, (state, action) => {
         console.log(action.payload, "err in slice");
@@ -84,5 +88,5 @@ const authenticateSlice = createSlice({
   },
 });
 
-export const { logout } = authenticateSlice.actions;
+export const { logout, addCurrentUser } = authenticateSlice.actions;
 export default authenticateSlice.reducer;

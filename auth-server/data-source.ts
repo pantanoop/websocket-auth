@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { User } from './src/auth/entities/user.entity';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
+import { Session } from './src/session/entities/session.entity';
 config();
 const datasource: DataSourceOptions = {
   type: 'postgres',
@@ -10,7 +11,7 @@ const datasource: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [User],
+  entities: [User, Session],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 };

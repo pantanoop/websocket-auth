@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch } from "../hooks/hooks";
+import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { validateSession } from "../redux/auth/services/authService";
 import { useRouter } from "next/navigation";
-import { logout } from "../redux/auth/authenticateSlice";
+import { logout, setOtp } from "../redux/auth/authenticateSlice";
 import { socket } from "../libraries/socket.library";
 
 function Dashboard() {
@@ -12,9 +12,10 @@ function Dashboard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   useEffect(() => {
-    dispatch(validateSession);
+    validateSession();
     socket.on("otp", (data) => {
       setotp(data);
+      // dispatch(setOtp(data));
     });
     socket.on("logout", () => {
       dispatch(logout());
@@ -22,6 +23,7 @@ function Dashboard() {
       router.replace("/pages/auth/login");
     });
   }, [dispatch]);
+  // const { otp } = useAppSelector((state) => state.authenticator);
   return (
     <div>
       welcome t stackoverflow

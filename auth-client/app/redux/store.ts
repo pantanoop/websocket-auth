@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "../redux/auth/authenticateSlice";
-
+import { injectStore } from "./auth/interceptor";
 import {
   persistStore,
   persistReducer,
@@ -17,6 +17,7 @@ const persistConfig = {
   key: "root",
   storage,
   whitelist: ["authenticator"],
+  // blacklist: ["otp"],
 };
 
 const persistedReducer = persistReducer(
@@ -35,7 +36,7 @@ export const store = configureStore({
       },
     }),
 });
-
+injectStore(store);
 export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

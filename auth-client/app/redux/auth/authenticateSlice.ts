@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, current } from "@reduxjs/toolkit";
-import { createUser, findUser, validateSession } from "./services/authService";
+import { createUser, findUser } from "./services/authService";
 
 export type User = {
   id: number;
@@ -10,12 +10,14 @@ export type AuthState = {
   currentUser: User | null;
   loading: boolean;
   error: string | null;
+  otp: string | null | undefined;
 };
 
 const initialState: AuthState = {
   currentUser: null,
   loading: false,
   error: null,
+  otp: undefined,
 };
 
 export const registerUser = createAsyncThunk(
@@ -46,12 +48,17 @@ const authenticateSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+      console.log("logout");
       state.currentUser = null;
       state.error = null;
       state.loading = false;
     },
     addCurrentUser: (state, action) => {
       state.currentUser = action.payload;
+    },
+    setOtp: (state, action) => {
+      console.log("reducer hit", action.payload);
+      state.otp = action.payload;
     },
   },
 
@@ -88,5 +95,5 @@ const authenticateSlice = createSlice({
   },
 });
 
-export const { logout, addCurrentUser } = authenticateSlice.actions;
+export const { logout, addCurrentUser, setOtp } = authenticateSlice.actions;
 export default authenticateSlice.reducer;

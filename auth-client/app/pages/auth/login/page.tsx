@@ -51,7 +51,7 @@ function Login() {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success",
   );
-
+  const [emailValue, setemailValue] = useState("");
   const { currentUser, error } = useAppSelector((state) => state.authenticator);
 
   useEffect(() => {
@@ -64,6 +64,7 @@ function Login() {
     if (currentUser && !error) {
       socket.connect();
       socket.emit("onConnection", Number(currentUser?.id));
+
       setSnackbarMessage("Logged in successfully!");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
@@ -91,12 +92,12 @@ function Login() {
 
   const handleLogin = async (data: LoginFormData) => {
     try {
+      setemailValue(data.email);
       await dispatch(loginUser(data));
     } catch (error: any) {
       const message = error?.message || "Login failed";
 
       setError("email", { type: "manual", message });
-
       setSnackbarMessage(message);
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
@@ -106,9 +107,11 @@ function Login() {
   function handleOtp() {
     console.log(otpValue, "login");
     const data = {
-      id: currentUser?.id,
+      email: emailValue,
       otp: otpValue,
     };
+    console.log(data);
+
     socket.connect();
     socket.emit("onVerifyOtp", data);
     socket.on("login", (data) => {

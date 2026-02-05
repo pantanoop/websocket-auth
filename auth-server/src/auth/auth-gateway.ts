@@ -44,8 +44,6 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() id: number,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('id gjfghjfghjf', id);
-    console.log('on conn', client.id);
     const sessionCount = await this.sessionRepository.count({
       where: { userid: id },
     });
@@ -54,7 +52,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
         userid: id,
         sessionId: client.id,
       });
-      await this.sessionRepository.save(session);
+      const s = await this.sessionRepository.save(session);
     }
 
     this.server.emit('message', id, 'id client', client.id);
@@ -62,7 +60,6 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('onGenerateOtp')
   async handleonGenerateOtp(@ConnectedSocket() client: Socket) {
-    console.log('hitted genenrate otp');
     const otpcode = Math.floor(1000 + Math.random() * 9000).toString();
     client.broadcast.emit('otp', otpcode);
     this.otp = otpcode;
@@ -76,22 +73,28 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (data.otp != this.otp) {
       client.emit('invalid otp');
     }
-    const existing = await this.sessionRepository.findOne({
-      where: { userid: data.id },
+    console.log('data email', data.email);
+    const existingUser = await this.userRepository.findOne({
+      where: { email: data.email },
     });
-    console.log(existing, 'verify otp');
+    const userId = existingUser?.id;
+    console.log('existing user id', userId);
+    const existing = await this.sessionRepository.findOne({
+      where: { userid: userId },
+    });
     const delClientId: any = existing?.sessionId;
-    console.log(delClientId, 'client id to be del');
     const socket = this.server.sockets.sockets.get(delClientId);
     socket?.emit('logout');
     socket?.disconnect();
     await this.sessionRepository.delete({ sessionId: delClientId });
     const session = this.sessionRepository.create({
-      userid: existing?.id,
+      userid: userId,
       sessionId: client.id,
     });
     await this.sessionRepository.save(session);
-    const newUser = this.userRepository.find({ where: { id: session.userid } });
+    const newUser = await this.userRepository.find({
+      where: { id: userId },
+    });
     const newSessionId = session.sessionId;
     const nsocket = this.server.sockets.sockets.get(newSessionId);
     nsocket?.emit('login', newUser);

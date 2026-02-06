@@ -11,6 +11,12 @@ function Dashboard() {
   const [otp, setotp] = useState("");
   const dispatch = useAppDispatch();
   const router = useRouter();
+  // const { currentUser } = useAppSelector((state) => state.authenticator);
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     socket.connect();
+  //   }
+  // }, []);
   useEffect(() => {
     validateSession();
     socket.on("otp", (data) => {

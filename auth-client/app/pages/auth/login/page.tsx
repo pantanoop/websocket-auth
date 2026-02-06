@@ -114,6 +114,9 @@ function Login() {
 
     socket.connect();
     socket.emit("onVerifyOtp", data);
+    socket.on("invalid otp", (data) => {
+      console.log(data, "invalid otp data");
+    });
     socket.on("login", (data) => {
       console.log(data, "login page");
       socket.connect();

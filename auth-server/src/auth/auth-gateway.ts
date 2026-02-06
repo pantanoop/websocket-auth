@@ -72,6 +72,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     if (data.otp != this.otp) {
       client.emit('invalid otp');
+      return;
     }
     console.log('data email', data.email);
     const existingUser = await this.userRepository.findOne({
@@ -91,6 +92,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userid: userId,
       sessionId: client.id,
     });
+    
     await this.sessionRepository.save(session);
     const newUser = await this.userRepository.find({
       where: { id: userId },
